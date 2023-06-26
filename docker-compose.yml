@@ -8,8 +8,5 @@ services:
       - mynetwork
     ports:
       - 27127:27017
-    environment:
-      MONGO_USER: mongo
-      MONGO_PASSWORD: 123
 networks:
   mynetwork:

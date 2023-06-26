@@ -1,4 +1,5 @@
-const Application = require('./app/server.js');
+import { Application } from "./app/server.js";
+
 const port = process.env.PORT;
 const dbUri = process.env.DB_URI;
 

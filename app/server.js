@@ -1,15 +1,17 @@
-const http = require('http');
-const express = require('express');
-const { Allroutes } = require('./router/router');
-const swaggerUi = require('swagger-ui-express');
-const swaggerJsDoc = require('swagger-jsdoc');
-const mongoose = require('mongoose');
-const httpError = require('http-errors');
-const morgan = require('morgan');
-const cors = require('cors');
-require('dotenv').config();
+import { AllRoutes } from './router/router.js';
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsDoc from 'swagger-jsdoc';
+import cookieParser from 'cookie-parser';
+import httpError from 'http-errors';
+import mongoose from 'mongoose';
+import express from 'express';
+import morgan from 'morgan';
+import http from 'http';
+import cors from 'cors';
+import { config } from 'dotenv';
+config();
 
-module.exports = class Application {
+export class Application {
   #app = express();
   #HOST = process.env.BASE_URL;
   #PORT;
@@ -26,6 +28,7 @@ module.exports = class Application {
 
   configApplication() {
     this.#app.use(cors());
+    this.#app.use(cookieParser());
     this.#app.use(morgan('dev'));
     this.#app.use(express.json());
     this.#app.use(express.urlencoded({ extended: true }));
@@ -71,8 +74,7 @@ module.exports = class Application {
 
   createServer() {
     const server = http.createServer(this.#app);
-    server.listen(this.#PORT, (error) => {
-      if (error) console.log(error);
+    server.listen(this.#PORT, () => {
       console.log(
         `application is running -> ${this.#HOST}:${
           this.#PORT
@@ -83,7 +85,7 @@ module.exports = class Application {
 
   connectToMongoDB() {
     mongoose.connect(this.#DB_URI);
-    
+
     mongoose.connection.on('connected', () => {
       console.log('mongoose connected to DB');
     });
@@ -98,7 +100,7 @@ module.exports = class Application {
   }
 
   createRoutes() {
-    this.#app.use(Allroutes);
+    this.#app.use(AllRoutes);
   }
 
   errorHandling() {
@@ -117,4 +119,4 @@ module.exports = class Application {
       });
     });
   }
-};
+}
