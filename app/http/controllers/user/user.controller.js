@@ -1,7 +1,7 @@
-import { signupValidation } from '../validators/user.validator.js';
-import { UserModel } from '../../models/user.js';
+import { signupValidation } from '../../validators/user.validator.js';
+import { UserModel } from '../../../models/user.js';
 import { StatusCodes } from 'http-status-codes';
-import { Controller } from './controller.js';
+import { Controller } from '../controller.js';
 import jwt from 'jsonwebtoken';
 import createHttpError from 'http-errors';
 import * as bcrypt from 'bcrypt';

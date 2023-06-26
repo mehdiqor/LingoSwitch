@@ -1,4 +1,4 @@
-import { Controller } from './controller.js';
+import { Controller } from '../controller.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { EventEmitter } from 'events';
@@ -13,6 +13,7 @@ class LanguageController extends Controller {
 
       const fileDir = join(
         __dirname,
+        '..',
         '..',
         '..',
         '..',
