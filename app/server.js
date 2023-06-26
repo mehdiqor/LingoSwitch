@@ -8,6 +8,10 @@ import express from 'express';
 import morgan from 'morgan';
 import http from 'http';
 import cors from 'cors';
+import { join } from "path";
+import i18next from 'i18next';
+import Backend from 'i18next-fs-backend';
+import i18nextMiddleware from 'i18next-express-middleware';
 import { config } from 'dotenv';
 config();
 
@@ -24,11 +28,13 @@ export class Application {
     this.connectToMongoDB();
     this.createRoutes();
     this.errorHandling();
+    this.internationalization();
   }
 
   configApplication() {
     this.#app.use(cors());
     this.#app.use(cookieParser());
+    this.#app.use(i18nextMiddleware.handle(i18next));
     this.#app.use(morgan('dev'));
     this.#app.use(express.json());
     this.#app.use(express.urlencoded({ extended: true }));
@@ -118,5 +124,18 @@ export class Application {
         },
       });
     });
+  }
+
+  internationalization() {
+    i18next
+      .use(Backend)
+      .use(i18nextMiddleware.LanguageDetector)
+      .init({
+        backend: {
+          loadPath: join('..', '/locales/{{lng}}/translation.json')
+        },
+        fallbackLng: 'en',
+        preload: ['en', 'fr', 'de', 'fa'],
+      });
   }
 }
