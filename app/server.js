@@ -118,15 +118,25 @@ export class Application {
     this.#app.use((req, res, next) => {
       next(httpError.NotFound());
     });
-    this.#app.use((error, req, res, next) => {
-      const serverError = httpError.InternalServerError();
-      const statusCode = error.status || serverError.status;
-      const message = error.message || serverError.message;
-      return res.status(statusCode).json({
-        errors: {
-          statusCode,
-          message,
-        },
+    this.#app.use((err, req, res, next) => {
+      const { status, message, errors } = err;
+      let validationErrors;
+
+      if (errors) {
+        validationErrors = {};
+
+        errors.forEach(
+          (error) =>
+            (validationErrors[error.param] = error.msg),
+        );
+      }
+
+      const lng = req.headers['accept-language'];
+
+      res.status(status).send({
+        status,
+        message: req.t(message, { lng }),
+        validationErrors,
       });
     });
   }
@@ -135,12 +145,18 @@ export class Application {
     i18next
       .use(Backend)
       .use(Middleware.LanguageDetector)
-      .init({
-        backend: {
-          loadPath: './locales/{{lng}}/translation.json',
+      .init(
+        {
+          backend: {
+            loadPath: './locales/{{lng}}/translation.json',
+          },
+          fallbackLng: 'en',
+          preload: ['en', 'fr', 'de', 'fa'],
         },
-        fallbackLng: 'en',
-        preload: ['en', 'fr', 'de', 'fa'],
-      });
+        (err, t) => {
+          if (err) return console.log('errrooorrr:', err);
+          t('key');
+        },
+      );
   }
 }

@@ -1,0 +1,12 @@
+{
+  "welcome": "Bienvenue",
+  "change_lng": "Langue changée avec succès",
+  "signup": "Vous vous êtes inscrit avec succès",
+  "signout": "Vous vous êtes déconnecté avec succès",
+  "add_blog": "Blog ajouté avec succès",
+  "conflict_error": "L'utilisateur existe déjà",
+  "internal_error": "Erreur interne du serveur",
+  "notfound_error": "Pas trouvé",
+  "unathorize_error": "Non autorisé",
+  "forbidden_error": "Identifiants incorrects"
+}

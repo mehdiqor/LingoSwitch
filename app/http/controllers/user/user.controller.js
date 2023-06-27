@@ -3,8 +3,14 @@ import { UserModel } from '../../../models/user.js';
 import { StatusCodes } from 'http-status-codes';
 import { Controller } from '../controller.js';
 import jwt from 'jsonwebtoken';
-import createHttpError from 'http-errors';
 import * as bcrypt from 'bcrypt';
+import {
+  MyConflictExpetion,
+  myForbidden,
+  myInternalServerError,
+  myNotFound,
+  myUnathorized,
+} from '../../../error/exceptions.js';
 
 class UserController extends Controller {
   async signup(req, res, next) {
@@ -15,10 +21,7 @@ class UserController extends Controller {
 
       // check exist user
       const findUser = await this.findUser(email);
-      if (findUser)
-        throw createHttpError.Conflict(
-          'User already exist!',
-        );
+      if (findUser) throw MyConflictExpetion();
 
       // generate hash
       const saltRounds = 10;
@@ -34,12 +37,15 @@ class UserController extends Controller {
         password: hashedPassword,
       });
 
-      if (!user)
-        throw createHttpError.InternalServerError();
+      if (!user) throw myInternalServerError();
 
-      delete user.password;
+      const lng = req.headers['accept-language'];
+      const message = req.t('signup', { lng });
+
       return res.status(StatusCodes.CREATED).json({
-        user,
+        message,
+        id: user._id,
+        email: user.email,
       });
     } catch (error) {
       next(error);
@@ -54,8 +60,7 @@ class UserController extends Controller {
 
       // check exist user
       const findUser = await this.findUser(email);
-      if (!findUser)
-        throw createHttpError.NotFound('User NotFound!');
+      if (!findUser) throw myNotFound();
 
       // check password
       this.checkPassword(findUser, password);
@@ -67,14 +72,32 @@ class UserController extends Controller {
         res,
       );
 
-      delete user.password;
+      const lng = req.headers['accept-language'];
+      const message = req.t('welcome', { lng });
+
       return res.status(StatusCodes.OK).json({
         statusCode: StatusCodes.OK,
         data: {
+          message,
           id: findUser._id,
           email: findUser.email,
           token,
         },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async signout(req, res, next) {
+    try {
+      res.clearCookie('refresh_token');
+
+      const lng = req.headers['accept-language'];
+      const message = req.t('signout', { lng });
+
+      return res.status(StatusCodes.OK).json({
+        message,
       });
     } catch (error) {
       next(error);
@@ -95,7 +118,7 @@ class UserController extends Controller {
         token,
       });
     } catch (error) {
-      throw createHttpError.Unauthorized();
+      throw myUnathorized();
     }
   }
 
@@ -106,17 +129,12 @@ class UserController extends Controller {
   }
 
   checkPassword(user, password) {
-    // compare password
     const pwMatches = bcrypt.compareSync(
       password,
       user.password,
     );
 
-    // if password incorrect throw excepion
-    if (!pwMatches)
-      throw createHttpError.Forbidden(
-        'Credentials incorrect',
-      );
+    if (!pwMatches) throw myForbidden();
   }
 
   async signToken(id, email, res) {
@@ -140,7 +158,7 @@ class UserController extends Controller {
       { token: refresh_token },
     );
     if (updateUser.modifiedCount == 0)
-      throw createHttpError.InternalServerError();
+      throw myInternalServerError();
 
     // send Rtoken with cookies
     res.cookie('refresh_token', refresh_token, {

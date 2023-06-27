@@ -4,4 +4,5 @@ export const UserRoutes = Router();
 
 UserRoutes.post('/register', UserAuthController.signup);
 UserRoutes.post('/login', UserAuthController.signin);
+UserRoutes.get('/logout', UserAuthController.signout);
 UserRoutes.get('/refreshToken', UserAuthController.refreshToken);

@@ -1,0 +1,11 @@
+{
+  "welcome": "خوش آمدید",
+  "change_lng": "زبان با موفقیت تغییر یافت",
+  "signup": "شما با موفقیت ثبت نام کردید",
+  "signout": "وبلاگ با موفقیت اضافه شد",
+  "conflict_error": "کاربر از قبل وجود دارد",
+  "internal_error": "خطای سرور داخلی",
+  "notfound_error": "پیدا نشد",
+  "unathorize_error": "غیرمجاز",
+  "forbidden_error": "اعتبارنامه نادرست است"
+}

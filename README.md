@@ -6,24 +6,23 @@
 
 ## Requirements:
 
-✅ Configure your Node.js/Express application to support localization.
+Configure your Node.js/Express application to support localization.
 
-✅ Identify the necessary language files or translation resources to store localized content.
+Identify the necessary language files or translation resources to store localized content.
 
 **Localization of Backend (Node.js/Express):**
 
-✅Configure your Node.js/Express application to support localization.
+Configure your Node.js/Express application to support localization.
 
-✅Identify the necessary language files or translation resources to store localized content.
+Identify the necessary language files or translation resources to store localized content.
 
-Implement middleware or a custom function to handle language detection and selection based on user  
-preferences.
+Implement middleware or a custom function to handle language detection and selection based on user preferences.
 
 Implement server-side localization of messages, error messages, date and time formats, and other application-specific texts.
 
 **Localization of Frontend (Angular):**
 
-✅ Provide required REST endpoint for frontend to be able to match user’s language preference.
+Provide required REST endpoint for frontend to be able to match user’s language preference.
 
 **Language Storage in MongoDB:**
 
@@ -40,9 +39,9 @@ To persist the language preference across user sessions, store the user's langua
 
 Implement a user profile or settings functionality to store and retrieve individual language preferences.
 
-✅Ensure the language preference is persisted across user sessions.
+Ensure the language preference is persisted across user sessions.
 
-✅ Allow users to update their language preferences in the application's settings.
+Allow users to update their language preferences in the application's settings.
 
 ## Installation and Running the app
 

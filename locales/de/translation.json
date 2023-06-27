@@ -1,0 +1,11 @@
+{
+  "welcome": "Willkommen",
+  "change_lng": "Die Sprache wurde erfolgreich geändert",
+  "signup": "Sie haben sich erfolgreich registriert",
+  "signout": "Blog erfolgreich hinzugefügt",
+  "conflict_error": "Benutzer existiert bereits",
+  "internal_error": "Interner Serverfehler",
+  "notfound_error": "Nicht gefunden",
+  "unathorize_error": "Nicht autorisiert",
+  "forbidden_error": "Anmeldeinformationen falsch"
+}

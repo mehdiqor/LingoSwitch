@@ -1,7 +1,5 @@
+import { StatusCodes } from 'http-status-codes';
 import { Controller } from '../controller.js';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-import { EventEmitter } from 'events';
 import moment from 'moment';
 
 class LanguageController extends Controller {
@@ -9,41 +7,33 @@ class LanguageController extends Controller {
     try {
       const { lng } = req.params;
 
-      const __filename = fileURLToPath(import.meta.url);
-      const __dirname = dirname(__filename);
-
-      const fileDir = join(
-        __dirname,
-        '..',
-        '..',
-        '..',
-        `/locales/${lng}/translation.json`,
-      );
-
       // set language in cookies
-      res.cookie('lng', lng, {
-        httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 1 Week
-      });
+      // res.cookie('lng', lng, {
+      //   httpOnly: true,
+      //   maxAge: 7 * 24 * 60 * 60 * 1000, // 1 Week
+      // });
+
+      // set language in headers
+      res.setHeader('accept-language', lng);
+      const message = req.t('change_lng', { lng });
 
       // change date and time
       moment.locale(lng);
+      const time = moment();
 
-      return res.sendFile(fileDir);
+      return res.status(StatusCodes.OK).json({
+        message,
+        time,
+      });
     } catch (error) {
       next(error);
     }
   }
 
-  async readLanguage(req, res) {
+  readLanguage(req, res) {
     try {
-      const language = req.cookies.lng;
-
-      // it can listen to events!
-      const myEventEmitter = new EventEmitter();
-      myEventEmitter.on('language', (resolve) => {
-        resolve(language);
-      });
+      // const language = req.cookies.lng;
+      const language = req.headers['accept-language'];
 
       return res.send(language);
     } catch (error) {
