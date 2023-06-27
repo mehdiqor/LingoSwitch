@@ -16,5 +16,9 @@ AllRoutes.get('/', (req, res) => {
   });
 });
 AllRoutes.use('/user', UserRoutes);
-AllRoutes.use('/language', authenticateToken, LanguageRoutes);
+AllRoutes.use(
+  '/language',
+  authenticateToken,
+  LanguageRoutes,
+);
 AllRoutes.use('/blog', authenticateToken, BlogRoutes);

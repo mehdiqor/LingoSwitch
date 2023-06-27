@@ -9,15 +9,11 @@ class LanguageController extends Controller {
     try {
       const { lng } = req.params;
 
-      // const lang = req.headers['accept-language'];
-      // if (lang) req.i18next.changeLanguage(lang);
-
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = dirname(__filename);
 
       const fileDir = join(
         __dirname,
-        '..',
         '..',
         '..',
         '..',
@@ -29,6 +25,9 @@ class LanguageController extends Controller {
         httpOnly: true,
         maxAge: 7 * 24 * 60 * 60 * 1000, // 1 Week
       });
+
+      // change date and time
+      moment.locale(lng);
 
       return res.sendFile(fileDir);
     } catch (error) {
@@ -50,15 +49,6 @@ class LanguageController extends Controller {
     } catch (error) {
       next(error);
     }
-  }
-
-  changeDateAndTime(lang) {
-    moment.locale(lang);
-  }
-
-  tFunction(req, res, next) {
-    const message = req.i18n.t("signIn");
-    res.send(message);
   }
 }
 
