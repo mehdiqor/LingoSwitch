@@ -67,7 +67,7 @@ class UserController extends Controller {
         res,
       );
 
-      // delete user.password;
+      delete user.password;
       return res.status(StatusCodes.OK).json({
         statusCode: StatusCodes.OK,
         data: {

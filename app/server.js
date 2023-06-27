@@ -8,7 +8,7 @@ import express from 'express';
 import morgan from 'morgan';
 import http from 'http';
 import cors from 'cors';
-import { join } from "path";
+import { join } from 'path';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import i18nextMiddleware from 'i18next-express-middleware';
@@ -34,10 +34,16 @@ export class Application {
   configApplication() {
     this.#app.use(cors());
     this.#app.use(cookieParser());
-    this.#app.use(i18nextMiddleware.handle(i18next));
     this.#app.use(morgan('dev'));
     this.#app.use(express.json());
     this.#app.use(express.urlencoded({ extended: true }));
+    this.#app.use(i18nextMiddleware.handle(i18next));
+    this.#app.use((req, res, next) => {
+      let lang = req.cookies.lng;
+      if (!lang) lang = 'fa';
+      req.i18n.changeLanguage(lang);
+      next();
+    });
     this.#app.use(
       '/swagger',
       swaggerUi.serve,
@@ -132,10 +138,14 @@ export class Application {
       .use(i18nextMiddleware.LanguageDetector)
       .init({
         backend: {
-          loadPath: join('..', '/locales/{{lng}}/translation.json')
+          loadPath: join(
+            '..',
+            '/locales/{{lng}}/translation.json',
+          ),
         },
         fallbackLng: 'en',
         preload: ['en', 'fr', 'de', 'fa'],
+        saveMissing: true
       });
   }
 }
