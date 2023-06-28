@@ -9,10 +9,10 @@ const UserSchema = new mongoose.Schema(
       unique: true,
     },
     password: { type: String, required: true },
+    language: { type: String, default: 'en' },
     firstName: { type: String },
     lastName: { type: String },
     token: { type: String },
-    tokenExpiration: { type: String },
   },
   {
     timestamps: true,
