@@ -5,12 +5,12 @@ import { Controller } from '../controller.js';
 import jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
 import {
-  MyConflictExpetion,
-  myForbidden,
-  myInternalServerError,
-  myNotFound,
-  myUnathorized,
-} from '../../../error/exceptions.js';
+  ConflictException,
+  ForbiddenException,
+  InternalServerException,
+  NotFoundException,
+  UnathorizedException,
+} from '../../../exceptions/exceptions.js';
 
 class UserController extends Controller {
   async signup(req, res, next) {
@@ -21,7 +21,7 @@ class UserController extends Controller {
 
       // check exist user
       const findUser = await this.findUser(email);
-      if (findUser) throw MyConflictExpetion();
+      if (findUser) throw ConflictException();
 
       // generate hash
       const saltRounds = 10;
@@ -35,12 +35,11 @@ class UserController extends Controller {
       const user = await UserModel.create({
         email,
         password: hashedPassword,
+        language: req.language,
       });
+      if (!user) throw InternalServerException();
 
-      if (!user) throw myInternalServerError();
-
-      const lng = req.headers['accept-language'];
-      const message = req.t('signup', { lng });
+      const message = req.t('signup');
 
       return res.status(StatusCodes.CREATED).json({
         message,
@@ -60,7 +59,7 @@ class UserController extends Controller {
 
       // check exist user
       const findUser = await this.findUser(email);
-      if (!findUser) throw myNotFound();
+      if (!findUser) throw NotFoundException();
 
       // check password
       this.checkPassword(findUser, password);
@@ -72,8 +71,7 @@ class UserController extends Controller {
         res,
       );
 
-      const lng = req.headers['accept-language'];
-      const message = req.t('welcome', { lng });
+      const message = req.t('welcome');
 
       return res.status(StatusCodes.OK).json({
         statusCode: StatusCodes.OK,
@@ -91,10 +89,28 @@ class UserController extends Controller {
 
   async signout(req, res, next) {
     try {
+      const secretKey = process.env.JWT_SECRET;
+      const refreshToken = req.cookies.refresh_token;
+      const { id } = jwt.verify(refreshToken, secretKey);
+
+      // remove token from DB
+      const updateToken = await UserModel.updateOne(
+        { _id: id },
+        {
+          $unset: {
+            token: ""
+          }
+        },
+      );
+
+      if (updateToken.modifiedCount == 0)
+        throw InternalServerException();
+
+
+      // remove from cookies
       res.clearCookie('refresh_token');
 
-      const lng = req.headers['accept-language'];
-      const message = req.t('signout', { lng });
+      const message = req.t('signout');
 
       return res.status(StatusCodes.OK).json({
         message,
@@ -118,7 +134,7 @@ class UserController extends Controller {
         token,
       });
     } catch (error) {
-      throw myUnathorized();
+      next(UnathorizedException());
     }
   }
 
@@ -134,7 +150,7 @@ class UserController extends Controller {
       user.password,
     );
 
-    if (!pwMatches) throw myForbidden();
+    if (!pwMatches) throw ForbiddenException();
   }
 
   async signToken(id, email, res) {
@@ -158,7 +174,7 @@ class UserController extends Controller {
       { token: refresh_token },
     );
     if (updateUser.modifiedCount == 0)
-      throw myInternalServerError();
+      throw InternalServerException();
 
     // send Rtoken with cookies
     res.cookie('refresh_token', refresh_token, {

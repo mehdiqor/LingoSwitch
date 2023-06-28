@@ -1,25 +1,36 @@
+import { InternalServerException } from '../../../exceptions/exceptions.js';
+import { UserModel } from '../../../models/user.js';
 import { StatusCodes } from 'http-status-codes';
 import { Controller } from '../controller.js';
+import jwt from 'jsonwebtoken';
 import moment from 'moment';
 
 class LanguageController extends Controller {
-  changeLanguage(req, res, next) {
+  async changeLanguage(req, res, next) {
     try {
       const { lng } = req.params;
 
-      // set language in cookies
-      // res.cookie('lng', lng, {
-      //   httpOnly: true,
-      //   maxAge: 7 * 24 * 60 * 60 * 1000, // 1 Week
-      // });
+      // check user login
+      const user = this.checkLogin(req);
 
-      // set language in headers
-      res.setHeader('accept-language', lng);
-      const message = req.t('change_lng', { lng });
+      if (user) {
+        const { id } = user;
+        const updateUser = await UserModel.updateOne(
+          { _id: id },
+          { language: lng },
+        );
+
+        if (updateUser.modifiedCount == 0)
+          throw InternalServerException();
+      }
+
+      // set language in header
+      req.i18n.changeLanguage(lng);
 
       // change date and time
-      moment.locale(lng);
-      const time = moment();
+      const time = moment().locale(lng);
+
+      const message = req.t('change_lng');
 
       return res.status(StatusCodes.OK).json({
         message,
@@ -30,15 +41,32 @@ class LanguageController extends Controller {
     }
   }
 
-  readLanguage(req, res) {
+  async readLanguage(req, res, next) {
     try {
-      // const language = req.cookies.lng;
-      const language = req.headers['accept-language'];
+      let language;
+      const checkUser = this.checkLogin(req);
+
+      if (checkUser) {
+        const user = await UserModel.findById(checkUser.id);
+        language = user.language;
+      } else {
+        language = req.language;
+      }
 
       return res.send(language);
     } catch (error) {
       next(error);
     }
+  }
+
+  checkLogin(req) {
+    const secretKey = process.env.JWT_SECRET;
+    const refreshToken = req.cookies.refresh_token;
+
+    if (!refreshToken) return false;
+
+    const payload = jwt.verify(refreshToken, secretKey);
+    return payload;
   }
 }
 

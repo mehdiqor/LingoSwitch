@@ -37,12 +37,6 @@ export class Application {
     this.#app.use(express.json());
     this.#app.use(express.urlencoded({ extended: true }));
     this.#app.use(Middleware.handle(i18next));
-    this.#app.use((req, res, next) => {
-      let lang = req.cookies.lng;
-      if (!lang) lang = 'en';
-      req.i18n.changeLanguage(lang);
-      next();
-    });
     this.#app.use(
       '/swagger',
       swaggerUi.serve,
@@ -131,7 +125,7 @@ export class Application {
         );
       }
 
-      const lng = req.headers['accept-language'];
+      const lng = req.headers['accept-language'] || 'en';
 
       res.status(status).send({
         status,
@@ -154,7 +148,7 @@ export class Application {
           preload: ['en', 'fr', 'de', 'fa'],
         },
         (err, t) => {
-          if (err) return console.log('errrooorrr:', err);
+          if (err) return console.log('error:', err);
           t('key');
         },
       );

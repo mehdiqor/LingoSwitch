@@ -1,4 +1,5 @@
-import { authenticateToken } from '../http/middlewares/auth.middleware.js';
+import { setLanguage } from '../http/middlewares/set-language.middleware.js';
+import { verifyAccessToken } from '../http/middlewares/auth.middleware.js';
 import { LanguageRoutes } from './language/language.router.js';
 import { BlogRoutes } from './blog/blog.router.js';
 import { UserRoutes } from './user/user.router.js';
@@ -15,10 +16,11 @@ AllRoutes.get('/', (req, res) => {
     ],
   });
 });
-AllRoutes.use('/user', UserRoutes);
+AllRoutes.use('/user', setLanguage, UserRoutes);
+AllRoutes.use('/language', LanguageRoutes);
 AllRoutes.use(
-  '/language',
-  authenticateToken,
-  LanguageRoutes,
+  '/blog',
+  verifyAccessToken,
+  setLanguage,
+  BlogRoutes,
 );
-AllRoutes.use('/blog', authenticateToken, BlogRoutes);

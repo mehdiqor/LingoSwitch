@@ -76,3 +76,17 @@
  *              500:
  *                  description: Internal Server Error
  */
+/**
+ * @swagger
+ *  /user/logout:
+ *      get:
+ *          tags: [User-Auth]
+ *          summary: sign out
+ *          responses:
+ *              200:
+ *                  description: success
+ *              401:
+ *                  description: Unauthorization
+ *              500:
+ *                  description: Internal Server Error
+ */

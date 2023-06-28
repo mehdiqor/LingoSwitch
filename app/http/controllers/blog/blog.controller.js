@@ -3,9 +3,9 @@ import { BlogModel } from '../../../models/blog.js';
 import { StatusCodes } from 'http-status-codes';
 import { Controller } from '../controller.js';
 import {
-  myInternalServerError,
-  myNotFound,
-} from '../../../error/exceptions.js';
+  InternalServerException,
+  NotFoundException,
+} from '../../../exceptions/exceptions.js';
 
 class BlogController extends Controller {
   async addBlog(req, res, next) {
@@ -25,11 +25,9 @@ class BlogController extends Controller {
           fa,
         },
       });
+      if (!createBlog) throw InternalServerException();
 
-      if (!createBlog) throw myInternalServerError();
-
-      const lng = req.headers['accept-language'];
-      const message = req.t('add_blog', { lng });
+      const message = req.t('add_blog');
 
       return res.status(StatusCodes.CREATED).json({
         message,
@@ -43,11 +41,11 @@ class BlogController extends Controller {
   async getBlogbyId(req, res, next) {
     try {
       const { id } = req.params;
-      const language = req.headers['accept-language'];
+      const language = req.language;
 
       // find blog
       const blog = await BlogModel.findById(id);
-      if (!blog) throw myNotFound();
+      if (!blog) throw NotFoundException();
 
       return res.status(StatusCodes.OK).json({
         data: blog.text.get(language),
